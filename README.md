@@ -1,4 +1,4 @@
-# Project3-GO-
+# Project3-NFA SIMULATOR WRITTEN IN GO-
 A nondeterministic finite automaton (NFA) is defined by a set of states, symbols in an
 alphabet, and a transition function. A state is represented by an integer. A symbol is
 represented by a rune, i.e., a character. Given a state and a symbol, a transition function
