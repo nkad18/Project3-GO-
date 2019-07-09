@@ -42,10 +42,8 @@ func Reachable(transitions TransitionFunction, start, final state, input []symbo
 		
         found = true
 		}
-		//fmt.Println("channel range vales")
         }
 		if found==true{
-		    //fmt.Println(input, "true")
 			return true
 		}
 	
@@ -59,11 +57,8 @@ func tran(transitions TransitionFunction, start, final state, input []symbol, c 
 	var curr []state
 	var fork1 int = 0
 	var last state
-	//var tstate state
-	//c2 := make(chan int)
-	//fmt.Println(start)
+	
 	curr = transitions(start, input[i])
-	//fmt.Println(start," ",curr," ",input[i], input, i)
 	i = i+1
 	if len(curr)==0{ //will have loop elsewhere to
 	   //do we fail when we are in a state that doesn't have next states based on our inputs?
@@ -90,11 +85,11 @@ func tran(transitions TransitionFunction, start, final state, input []symbol, c 
 	if fork1==1&&i==len(input){
 		//create a new go routine for each new path you can fork to
 		for z:=0; z<len(curr); z++{
-	       if curr[z]==final{ //fmt.Println("sec")
-		     mutex.Lock()
-		     select { 
-              case c <- 2: // Put 2 in the channel unless it is full
-             default:
+	       if curr[z]==final{ 
+		   		mutex.Lock()
+		        select { 
+                	case c <- 2: // Put 2 in the channel unless it is full
+             	default:
 		   }
 		   mutex.Unlock()
 			}
@@ -106,47 +101,40 @@ func tran(transitions TransitionFunction, start, final state, input []symbol, c 
 	   
 	   
     for (i<len(input)&&fork1==0){
-        curr = transitions(curr[0], input[i])
-        i = i+1
+		curr = transitions(curr[0], input[i])
+		i = i+1
 	   if len(curr)==0{ //will have loop elsewhere to
 	   return
 	   }
 	   if len(curr)>1{ // fork: have multiple next states based on input
-	   /*if i==0{
-	       i=i+1
-	   }*/
-	   fork1 = 1
-	   break
+		   fork1 = 1
+		   break
 	   }else {
-	   last = curr[0]
-	   if i==len(input){
-		   //fmt.Println("first")
-	   if last==final{ 
-		   mutex.Lock()
-		   select {
-           case c <- 2: // Put 2 in the channel unless it is full
-           default:
-		   }
-		   mutex.Unlock()
-		return
+		   last = curr[0]
+		   if i==len(input){
+		   if last==final{ 
+			   mutex.Lock()
+			   select {
+		   case c <- 2: // Put 2 in the channel unless it is full
+		   default:
+			   }
+			   mutex.Unlock()
+			return
 	   }
 	   return
 	   }
 	   }
-	   //we're not at the end of string and there was only 1 state
-	   //fmt.Println("first created", len(curr)," ",curr[0]," ", i) causes index out of bounds becasue I dont
-	   //know at this point if array is empty (if it has an index 0 or not )
 		
 	}//there is more than one option to transition to 
     if fork1==1&&i<=len(input)&& i>0{ 
 		if i ==len(input){
 		    //create a new go routine for each new path you can fork to
 		for z:=0; z<len(curr); z++{
-	       if curr[z]==final{ //fmt.Println("sec")
-		     mutex.Lock()
-		     select { 
-              case c <- 2: // Put 2 in the channel unless it is full
-             default:
+	       if curr[z]==final{
+			   mutex.Lock()
+			   select { 
+				   case c <- 2: // Put 2 in the channel unless it is full
+			   default:
 		   }
 		   mutex.Unlock()
 			}
@@ -154,14 +142,10 @@ func tran(transitions TransitionFunction, start, final state, input []symbol, c 
 	    return
 		    
 		}
-         //fmt.Println("create", len(curr)," ",curr[0]," ", i)
          g:=resize(i,input[:])
 		//create a new go routine for each new path you can fork to
-		for y:=0; y<len(curr); y++{ //fmt.Println(curr," ", g)
+		for y:=0; y<len(curr); y++{ 
 			waitG.Add(1)
-			//don't need to use input[i+1:] because already on char after
-			//the char that cuased the fork
-			
 			go tran(transitions, curr[y], final, g, c, waitG)
 		}
 		
@@ -169,27 +153,6 @@ func tran(transitions TransitionFunction, start, final state, input []symbol, c 
 		
 		
 	}
-	//for when you only have 1 symbol and it goes in mult states
-	/*if fork1==1&&i==len(input)-1{
-         
-		//create a new go routine for each new path you can fork to
-		for z:=0; z<len(curr); z++{
-		    tstate = transitions(curr[z], input[i])
-	       if tstate==final{ fmt.Println("third")
-		     mutex.Lock()
-		     select { 
-              case c <- 2: // Put 2 in the channel unless it is full
-             default:
-		   }
-		   mutex.Unlock()
-			}
-			
-		}
-		
-	    return
-		
-		
-	}*/
 
 }
 func resize(i int, x []symbol) []symbol{
